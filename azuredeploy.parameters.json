@@ -6,22 +6,13 @@
       "value": "westus"
     },
     "_artifactsLocation":{
-      "value": "https://raw.githubusercontent.com/DCMattyG/azure-projects/master/deploy-all/"
+      "value": "https://raw.githubusercontent.com/DCMattyG/azure-gateway-routing/master/"
     },
     "_artifactsLocationSasToken": {
       "value": ""
     },
-    "mgmtRg": {
-      "value": "mgmt-rg"
-    },
     "networkRg": {
       "value": "network-rg"
-    },
-    "windowsRg": {
-      "value": "windows-rg"
-    },
-    "linuxRg": {
-      "value": "linux-rg"
     },
     "hubNetwork": {
       "value": {
@@ -34,24 +25,35 @@
     "virtualNetworks": {
       "value": [
         {
-          "vnetName": "lin-vm-vnet",
+          "vnetName": "dev-vnet",
           "addressSpace": "10.1.0.0/16",
           "subnets": [
             {
               "subnetName": "default",
               "addressPrefix": "10.1.0.0/24",
-              "routeTable": "linux-routes"
+              "routeTable": "dev-routes"
             }
           ]
         },
         {
-          "vnetName": "win-vm-vnet",
+          "vnetName": "test-vnet",
           "addressSpace": "10.2.0.0/16",
           "subnets": [
             {
               "subnetName": "default",
               "addressPrefix": "10.2.0.0/24",
-              "routeTable": "windows-routes"
+              "routeTable": "test-routes"
+            }
+          ]
+        },
+        {
+          "vnetName": "prod-vnet",
+          "addressSpace": "10.3.0.0/16",
+          "subnets": [
+            {
+              "subnetName": "default",
+              "addressPrefix": "10.3.0.0/24",
+              "routeTable": "prod-routes"
             }
           ]
         }
@@ -60,24 +62,57 @@
     "routeTables": {
       "value": [
         {
-          "name": "linux-routes",
+          "name": "dev-routes",
           "routes": [
             {
-              "name": "route-to-windows",
+              "name": "route-to-test",
               "properties": {
                 "addressPrefix": "10.2.0.0/16",
+                "nextHopType": "VirtualNetworkGateway"
+              }
+            },
+            {
+              "name": "route-to-prod",
+              "properties": {
+                "addressPrefix": "10.3.0.0/16",
                 "nextHopType": "VirtualNetworkGateway"
               }
             }
           ]
         },
         {
-          "name": "windows-routes",
+          "name": "test-routes",
           "routes": [
             {
-              "name": "route-to-linux",
+              "name": "route-to-dev",
               "properties": {
                 "addressPrefix": "10.1.0.0/16",
+                "nextHopType": "VirtualNetworkGateway"
+              }
+            },
+            {
+              "name": "route-to-prod",
+              "properties": {
+                "addressPrefix": "10.3.0.0/16",
+                "nextHopType": "VirtualNetworkGateway"
+              }
+            }
+          ]
+        },
+        {
+          "name": "prod-routes",
+          "routes": [
+            {
+              "name": "route-to-dev",
+              "properties": {
+                "addressPrefix": "10.1.0.0/16",
+                "nextHopType": "VirtualNetworkGateway"
+              }
+            },
+            {
+              "name": "route-to-test",
+              "properties": {
+                "addressPrefix": "10.2.0.0/16",
                 "nextHopType": "VirtualNetworkGateway"
               }
             }
@@ -88,17 +123,17 @@
     "vnetPeers": {
       "value": [
         {
-          "name": "hub-to-linux",
+          "name": "hub-to-dev",
           "from": "hub-vnet",
-          "to": "lin-vm-vnet",
+          "to": "dev-vnet",
           "vnetAccess": true,
           "forwardedTraffic": true,
           "gatewayTransit": true,
           "remoteGateways": false
         },
         {
-          "name": "linux-to-hub",
-          "from": "lin-vm-vnet",
+          "name": "dev-to-hub",
+          "from": "dev-vnet",
           "to": "hub-vnet",
           "vnetAccess": true,
           "forwardedTraffic": true,
@@ -106,17 +141,35 @@
           "remoteGateways": true
         },
         {
-          "name": "hub-to-windows",
+          "name": "hub-to-test",
           "from": "hub-vnet",
-          "to": "win-vm-vnet",
+          "to": "test-vnet",
           "vnetAccess": true,
           "forwardedTraffic": true,
           "gatewayTransit": true,
           "remoteGateways": false
         },
         {
-          "name": "windows-to-hub",
-          "from": "win-vm-vnet",
+          "name": "test-to-hub",
+          "from": "test-vnet",
+          "to": "hub-vnet",
+          "vnetAccess": true,
+          "forwardedTraffic": true,
+          "gatewayTransit": false,
+          "remoteGateways": true
+        },
+        {
+          "name": "hub-to-prod",
+          "from": "hub-vnet",
+          "to": "prod-vnet",
+          "vnetAccess": true,
+          "forwardedTraffic": true,
+          "gatewayTransit": true,
+          "remoteGateways": false
+        },
+        {
+          "name": "prod-to-hub",
+          "from": "prod-vnet",
           "to": "hub-vnet",
           "vnetAccess": true,
           "forwardedTraffic": true,
